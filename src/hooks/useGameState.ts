@@ -190,8 +190,16 @@ export function useGameState() {
     if (savedState) {
       try {
         const parsedState = JSON.parse(savedState) as GameState
+        // Rehydrate achievement conditions
+        const hydratedAchievements = parsedState.achievements.map(savedAch => {
+          const match = initialAchievements.find(initAch => initAch.id === savedAch.id)
+          return match ? { ...savedAch, condition: match.condition } : savedAch
+        })
         toast.success('Game loaded successfully!')
-        return parsedState
+        return {
+          ...parsedState,
+          achievements: hydratedAchievements
+        }
       } catch (e) {
         console.error('Failed to parse saved game state:', e)
         return defaultInitialState
